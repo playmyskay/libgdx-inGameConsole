@@ -36,18 +36,24 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.strongjoshua.console.AnnotationCommandCreator;
+import com.strongjoshua.console.Command;
 import com.strongjoshua.console.CommandExecutor;
+import com.strongjoshua.console.CommandManager;
+import com.strongjoshua.console.DefaultCommandManager;
 import com.strongjoshua.console.annotation.ConsoleDoc;
 import com.strongjoshua.console.annotation.HiddenCommand;
 import com.strongjoshua.console.gui.GUIConsole;
 import com.strongjoshua.console.log.LogConverter;
 import com.strongjoshua.console.log.LogLevel;
 
-/** Extension of the <a href=
- * 'https://github.com/StrongJoshua/libgdx-utils/blob/master/src/com/strongjoshua/libgdx_utils/tests/Box2DTest.java'>Simple Box2D
- * test</a> to incorporate the console.
+/**
+ * Extension of the <a href=
+ * 'https://github.com/StrongJoshua/libgdx-utils/blob/master/src/com/strongjoshua/libgdx_utils/tests/Box2DTest.java'>Simple
+ * Box2D test</a> to incorporate the console.
  *
- * @author StrongJoshua */
+ * @author StrongJoshua
+ */
 public class Box2DTest extends ApplicationAdapter {
 	SpriteBatch batch;
 	Sprite[] sprites;
@@ -59,31 +65,33 @@ public class Box2DTest extends ApplicationAdapter {
 	float mX, mY, ratio;
 	GUIConsole console;
 	MyCommandExecutor cExec;
-	
+
 	private static void setConsoleDrawables(GUIConsole console) {
 		{
 			Pixmap px = new Pixmap(1, 1, Format.RGBA8888);
 			px.drawPixel(0, 0, Color.rgba8888(0f, 1f, 0f, 0.5f));
-			console.setMouseHoverDrawble(new TextureRegionDrawable(new TextureRegion(new Texture(px))));
+			console.setMouseHoverDrawble(
+					new TextureRegionDrawable(new TextureRegion(new Texture(px))));
 		}
 		{
 			Pixmap px = new Pixmap(1, 1, Format.RGBA8888);
 			px.drawPixel(0, 0, Color.rgba8888(0f, 0f, 0.5f, 0.5f));
-			console.setSelectedDrawble(new TextureRegionDrawable(new TextureRegion(new Texture(px))));
+			console.setSelectedDrawble(
+					new TextureRegionDrawable(new TextureRegion(new Texture(px))));
 		}
 	}
 
 	@Override
-	public void create () {
+	public void create() {
 		float w = Gdx.graphics.getWidth();
 		w *= 2;
 		float h = Gdx.graphics.getHeight();
 		h *= 2;
 		ratio = h / w;
-		Gdx.app.getGraphics().setWindowedMode((int)w, (int)h);
+		Gdx.app.getGraphics().setWindowedMode((int) w, (int) h);
 
-		mX = (float)WIDTH / w;
-		mY = (float)HEIGHT / h;
+		mX = (float) WIDTH / w;
+		mY = (float) HEIGHT / h;
 
 		Box2D.init();
 		world = new World(new Vector2(0, -9.81f), true);
@@ -110,7 +118,8 @@ public class Box2DTest extends ApplicationAdapter {
 				j = 5;
 			}
 
-			sprites[i] = new Sprite(new Texture(Gdx.files.classpath("tests/badlogic.jpg")));
+			sprites[i] = new Sprite(new Texture(
+					Gdx.files.classpath("com/strongjoshua/console/tests/badlogic.jpg")));
 			sprites[i].setSize(2, 2);
 			sprites[i].setOriginCenter();
 
@@ -170,21 +179,30 @@ public class Box2DTest extends ApplicationAdapter {
 
 		debugRenderer = new Box2DDebugRenderer();
 
-		console = new GUIConsole(new Skin(Gdx.files.classpath("com/strongjoshua/console/tests/test_skin/uiskin.json")), false);
+		console = new GUIConsole(new Skin(
+				Gdx.files.classpath("com/strongjoshua/console/tests/test_skin/uiskin.json")),
+				false);
 		console.setTransparency(0.8f, 0.4f);
 		console.setHandleFocus(true);
 		console.addLogConverter(new LogConverter() {
 			private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
 			@Override
-			public String convert (String msg) {
-				return String.format("%s: ", dateFormat.format(Calendar.getInstance().getTime())) + msg;
+			public String convert(String msg) {
+				return String.format("%s: ", dateFormat.format(Calendar.getInstance().getTime()))
+						+ msg;
 			}
 		});
+		console.setCommandManager(new DefaultCommandManager());
+
 		setConsoleDrawables(console);
-		
+
 		cExec = new MyCommandExecutor();
-		console.setCommandExecutor(cExec);
+		AnnotationCommandCreator creator = new AnnotationCommandCreator(cExec, console);
+		CommandManager manager = console.getCommandManager();
+		for (Command command : creator.createCommands())
+			manager.add(command);
+
 		// set to 'Z' to demonstrate that it works with binds other than the
 		// default
 		console.setDisplayKeyID(Input.Keys.Z);
@@ -211,7 +229,7 @@ public class Box2DTest extends ApplicationAdapter {
 	}
 
 	@Override
-	public void render () {
+	public void render() {
 		if (Gdx.input.isTouched()) {
 			float x = Gdx.input.getX();
 			float y = Gdx.input.getY();
@@ -221,11 +239,13 @@ public class Box2DTest extends ApplicationAdapter {
 
 				createExplosion(worldVector.x, worldVector.y, 2000);
 
-				console.log(String.format("Created touch explosion at %.2f, %.2f!", worldVector.x, worldVector.y), LogLevel.SUCCESS);
+				console.log(String.format("Created touch explosion at %.2f, %.2f!", worldVector.x,
+						worldVector.y), LogLevel.SUCCESS);
 			}
 		}
 
-		if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) Gdx.app.exit();
+		if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE))
+			Gdx.app.exit();
 		world.step(1 / 60f, 6, 2);
 
 		Gdx.gl.glClearColor(0, 0, 0, 1);
@@ -233,7 +253,8 @@ public class Box2DTest extends ApplicationAdapter {
 		batch.begin();
 		for (int i = 0; i < bodies.length; i++) {
 			Vector2 pos = bodies[i].getPosition();
-			sprites[i].setPosition(pos.x - sprites[i].getWidth() / 2, pos.y - sprites[i].getHeight() / 2);
+			sprites[i].setPosition(pos.x - sprites[i].getWidth() / 2,
+					pos.y - sprites[i].getHeight() / 2);
 			sprites[i].setRotation(MathUtils.radiansToDegrees * bodies[i].getAngle());
 			sprites[i].draw(batch);
 		}
@@ -245,10 +266,14 @@ public class Box2DTest extends ApplicationAdapter {
 		console.draw();
 	}
 
-	/** Creates an explosion that applies forces to the bodies relative to their position and the given x and y values.
+	/**
+	 * Creates an explosion that applies forces to the bodies relative to their
+	 * position and the given x and y values.
 	 *
-	 * @param maxForce The maximum force to be applied to the bodies (diminishes as distance from touch increases). */
-	private void createExplosion (float x, float y, float maxForce) {
+	 * @param maxForce The maximum force to be applied to the bodies (diminishes as
+	 *                 distance from touch increases).
+	 */
+	private void createExplosion(float x, float y, float maxForce) {
 		float force;
 		Vector2 touch = new Vector2(x, y);
 		for (int i = 0; i < bodies.length; i++) {
@@ -272,56 +297,58 @@ public class Box2DTest extends ApplicationAdapter {
 			boundMax = new Vector3(v.x + 1, v.y + 1, 0);
 			intersection = Vector3.Zero;
 
-			Intersector.intersectRayBounds(new Ray(touch3, v3), new BoundingBox(boundMin, boundMax), intersection);
+			Intersector.intersectRayBounds(new Ray(touch3, v3), new BoundingBox(boundMin, boundMax),
+					intersection);
 
-			b.applyForce(new Vector2(xForce, yForce), new Vector2(intersection.x, intersection.y), true);
+			b.applyForce(new Vector2(xForce, yForce), new Vector2(intersection.x, intersection.y),
+					true);
 		}
 	}
 
 	@Override
-	public void dispose () {
+	public void dispose() {
 		console.dispose();
 		super.dispose();
 	}
 
 	public class MyCommandExecutor extends CommandExecutor {
 		@HiddenCommand
-		public void superExplode () {
+		public void superExplode() {
 			explode(0, 0, 1000000);
 		}
 
-		public void setExecuteHiddenCommands (boolean enabled) {
+		public void setExecuteHiddenCommands(boolean enabled) {
 			console.setExecuteHiddenCommands(enabled);
 			console.log("ExecuteHiddenCommands was set to " + enabled);
 		}
 
-		public void setDisplayHiddenCommands (boolean enabled) {
+		public void setDisplayHiddenCommands(boolean enabled) {
 			console.setDisplayHiddenCommands(enabled);
 			console.log("DisplayHiddenCommands was set to " + enabled);
 		}
 
-		@ConsoleDoc(description = "Creates an explosion.", paramDescriptions = {"The x coordinate", "The y coordinate",
-			"The amount of force"})
-		public void explode (float x, float y, float maxForce) {
+		@ConsoleDoc(description = "Creates an explosion.", paramDescriptions = { "The x coordinate",
+				"The y coordinate", "The amount of force" })
+		public void explode(float x, float y, float maxForce) {
 			createExplosion(x, y, maxForce);
 			console.log("Created console explosion!", LogLevel.SUCCESS);
 		}
 
-		public void clear () {
+		public void clear() {
 			console.clear();
 		}
 
-		public void failFunction () {
+		public void failFunction() {
 			throw new RuntimeException("This function was designed to fail.");
 		}
-		
+
 		@ConsoleDoc(description = "Thread pool which spams the log system for a spcific time to test thread safety.")
 		public void logTest(long delta) {
 			LogThreadSafeTest.create(console, delta * 1000);
 		}
 	}
 
-	public static void main (String[] args) {
+	public static void main(String[] args) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		new LwjglApplication(new Box2DTest(), config);
 	}

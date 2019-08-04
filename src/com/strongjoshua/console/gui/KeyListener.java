@@ -12,22 +12,24 @@ import com.strongjoshua.console.log.LogLevel;
 public class KeyListener extends InputListener {
 	private Console console;
 	private TextField input;
-	private	CommandHistory commandHistory;
+	private CommandHistory commandHistory;
 	private CommandCompleter commandCompleter;
 
 	public KeyListener(Console console, TextField tf) {
 		this.console = console;
 		this.input = tf;
-		
+
 		commandHistory = new CommandHistory();
 		commandCompleter = new CommandCompleter();
 	}
 
 	@Override
 	public boolean keyDown(InputEvent event, int keycode) {
-		if (console.isDisabled()) return false;
-		if (!console.hasFocus()) return false;
-		
+		if (console.isDisabled())
+			return false;
+		if (!console.hasFocus())
+			return false;
+
 		// reset command completer because input string may have changed
 		if (keycode != Keys.TAB) {
 			commandCompleter.reset();
@@ -38,11 +40,12 @@ public class KeyListener extends InputListener {
 			if (s.length() == 0 || s.split(" ").length == 0) {
 				return false;
 			}
-			if (console.getCommandExecutor() != null) {
+			if (console.getCommandManager() != null) {
 				commandHistory.store(s);
 				console.execCommand(s);
 			} else {
-				console.log("No command executor has been set. Please call setCommandExecutor for this console in your code and restart.",
+				console.log(
+						"No command manager has been set. Please call setCommandExecutor for this console in your code and restart.",
 						LogLevel.ERROR);
 			}
 			input.setText("");
@@ -61,8 +64,8 @@ public class KeyListener extends InputListener {
 				return false;
 			}
 			if (commandCompleter != null) {
-				if (console.getCommandExecutor() != null && commandCompleter.isNew()) {
-					commandCompleter.set(console.getCommandExecutor(), s);
+				if (console.getCommandManager() != null && commandCompleter.isNew()) {
+					commandCompleter.set(console.getCommandManager(), s);
 				}
 				String nextStr = commandCompleter.next();
 				if (nextStr != null) {

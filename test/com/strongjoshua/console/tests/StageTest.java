@@ -17,7 +17,11 @@ import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.strongjoshua.console.AnnotationCommandCreator;
+import com.strongjoshua.console.Command;
 import com.strongjoshua.console.CommandExecutor;
+import com.strongjoshua.console.CommandManager;
+import com.strongjoshua.console.DefaultCommandManager;
 import com.strongjoshua.console.annotation.ConsoleDoc;
 import com.strongjoshua.console.gui.GUIConsole;
 
@@ -29,18 +33,26 @@ public class StageTest extends ApplicationAdapter {
 	private Label deselectLabel;
 
 	@Override
-	public void create () {
+	public void create() {
 		stage = new Stage();
 		Gdx.input.setInputProcessor(stage);
 
 		Skin skin = new Skin(Gdx.files.classpath("tests/test_skin/uiskin.json"));
 		console = new GUIConsole(skin, true, Keys.NUMPAD_0);
-		console.setCommandExecutor(new MyCommandExecutor());
+		console.setCommandManager(new DefaultCommandManager());
+
+		AnnotationCommandCreator creator = new AnnotationCommandCreator(new MyCommandExecutor(),
+				console);
+
+		CommandManager manager = console.getCommandManager();
+		for (Command command : creator.createCommands())
+			manager.add(command);
+
 		console.setSizePercent(100, 50);
 
 		stage.addListener(new InputListener() {
 			@Override
-			public boolean keyDown (InputEvent event, int keycode) {
+			public boolean keyDown(InputEvent event, int keycode) {
 				if (keycode == Input.Keys.F) {
 					blink();
 					return true;
@@ -65,15 +77,17 @@ public class StageTest extends ApplicationAdapter {
 		stage.addActor(selectLabel);
 		stage.addActor(deselectLabel);
 		int padding = 25;
-		selectLabel.setPosition(Gdx.graphics.getWidth() - selectLabel.getWidth() - deselectLabel.getWidth() - 2 * padding,
-			selectLabel.getHeight());
-		deselectLabel.setPosition(Gdx.graphics.getWidth() - deselectLabel.getWidth() - padding, deselectLabel.getHeight());
+		selectLabel.setPosition(Gdx.graphics.getWidth() - selectLabel.getWidth()
+				- deselectLabel.getWidth() - 2 * padding, selectLabel.getHeight());
+		deselectLabel.setPosition(Gdx.graphics.getWidth() - deselectLabel.getWidth() - padding,
+				deselectLabel.getHeight());
 	}
 
 	@Override
-	public void render () {
+	public void render() {
 		if (Gdx.input.justTouched()) {
-			Actor actor = stage.hit(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY(), true);
+			Actor actor = stage.hit(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY(),
+					true);
 			if (actor == selectLabel) {
 				console.select();
 			} else if (actor == deselectLabel) {
@@ -89,12 +103,12 @@ public class StageTest extends ApplicationAdapter {
 		console.draw();
 	}
 
-	private void blink () {
+	private void blink() {
 		image.addAction(Actions.sequence(Actions.fadeOut(1), Actions.fadeIn(1)));
 	}
 
 	@Override
-	public void dispose () {
+	public void dispose() {
 		console.dispose();
 		stage.dispose();
 		super.dispose();
@@ -102,27 +116,27 @@ public class StageTest extends ApplicationAdapter {
 
 	private class MyCommandExecutor extends CommandExecutor {
 		@ConsoleDoc(description = "Makes the badlogic image fade out and back " + "" + "" + "in.")
-		public void blink () {
+		public void blink() {
 			StageTest.this.blink();
 		}
 
-		public void setExecuteHiddenCommands (boolean enabled) {
+		public void setExecuteHiddenCommands(boolean enabled) {
 			console.setExecuteHiddenCommands(enabled);
 			console.log("ExecuteHiddenCommands was set to " + enabled);
 		}
 
-		public void setDisplayHiddenCommands (boolean enabled) {
+		public void setDisplayHiddenCommands(boolean enabled) {
 			console.setDisplayHiddenCommands(enabled);
 			console.log("DisplayHiddenCommands was set to " + enabled);
 		}
-		
+
 		@ConsoleDoc(description = "Thread pool which spams the log system for a spcific time to test thread safety.")
 		public void logTest(long delta) {
 			LogThreadSafeTest.create(console, delta * 1000);
 		}
 	}
 
-	public static void main (String[] args) {
+	public static void main(String[] args) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		new LwjglApplication(new StageTest(), config);
 	}

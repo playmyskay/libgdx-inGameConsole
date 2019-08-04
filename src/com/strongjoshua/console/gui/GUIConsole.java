@@ -50,7 +50,7 @@ public class GUIConsole extends AbstractConsole {
 
 	private ConsoleDisplay display;
 	private boolean visibile = true;
-	private boolean focus = true;
+	private boolean focus = false;
 	private boolean handleFocus = false;
 	private boolean captured = false;
 	private boolean usesMultiplexer = false;
@@ -60,10 +60,10 @@ public class GUIConsole extends AbstractConsole {
 	private Window consoleWindow;
 	private final ReadWriteLock rwl = new ReentrantReadWriteLock();
 	private boolean refreshFlag = true;
-	
+
 	private float defaultTransparency = 1f;
 	private float backgroundTransparency = 1f;
-	
+
 	/**
 	 * Creates the console using the default skin.<br>
 	 * <b>***IMPORTANT***</b> Call {@link Console#dispose()} to make your
@@ -82,9 +82,8 @@ public class GUIConsole extends AbstractConsole {
 	 * {@link InputProcessor} the default processor again (this console uses a
 	 * multiplexer to circumvent it).
 	 *
-	 * @param skin
-	 *            Uses skins for Label, TextField, and Table. Skin <b>must</b>
-	 *            contain a font called 'default-font'.
+	 * @param skin Uses skins for Label, TextField, and Table. Skin <b>must</b>
+	 *             contain a font called 'default-font'.
 	 * @see Console#dispose()
 	 */
 	public GUIConsole(Skin skin) {
@@ -97,8 +96,7 @@ public class GUIConsole extends AbstractConsole {
 	 * {@link InputProcessor} the default processor again (this console uses a
 	 * multiplexer to circumvent it).
 	 *
-	 * @param useMultiplexer
-	 *            If internal multiplexer should be used
+	 * @param useMultiplexer If internal multiplexer should be used
 	 * @see Console#dispose()
 	 */
 	public GUIConsole(boolean useMultiplexer) {
@@ -111,11 +109,9 @@ public class GUIConsole extends AbstractConsole {
 	 * {@link InputProcessor} the default processor again (this console uses a
 	 * multiplexer to circumvent it).
 	 *
-	 * @param skin
-	 *            Uses skins for Label, TextField, and Table. Skin <b>must</b>
-	 *            contain a font called 'default-font'.
-	 * @param useMultiplexer
-	 *            If internal multiplexer should be used
+	 * @param skin           Uses skins for Label, TextField, and Table. Skin
+	 *                       <b>must</b> contain a font called 'default-font'.
+	 * @param useMultiplexer If internal multiplexer should be used
 	 * @see Console#dispose()
 	 */
 	public GUIConsole(Skin skin, boolean useMultiplexer) {
@@ -128,13 +124,10 @@ public class GUIConsole extends AbstractConsole {
 	 * {@link InputProcessor} the default processor again (this console uses a
 	 * multiplexer to circumvent it).
 	 *
-	 * @param skin
-	 *            Uses skins for Label, TextField, and Table. Skin <b>must</b>
-	 *            contain a font called 'default-font'.
-	 * @param useMultiplexer
-	 *            If internal multiplexer should be used
-	 * @param keyID
-	 *            Sets the key used to open/close the console
+	 * @param skin           Uses skins for Label, TextField, and Table. Skin
+	 *                       <b>must</b> contain a font called 'default-font'.
+	 * @param useMultiplexer If internal multiplexer should be used
+	 * @param keyID          Sets the key used to open/close the console
 	 * @see Console#dispose()
 	 */
 	public GUIConsole(Skin skin, boolean useMultiplexer, int keyID) {
@@ -148,8 +141,8 @@ public class GUIConsole extends AbstractConsole {
 			resetInputProcessing();
 		}
 
-		//display.pad(4);
-		//display.padTop(22);
+		// display.pad(4);
+		// display.padTop(22);
 		display.setFillParent(true);
 
 		consoleWindow = new Dialog("Console", skin);
@@ -158,32 +151,31 @@ public class GUIConsole extends AbstractConsole {
 		consoleWindow.setResizable(true);
 		consoleWindow.setKeepWithinStage(true);
 		consoleWindow.addActor(display);
-		consoleWindow.setTouchable(Touchable.disabled);
+		consoleWindow.setTouchable(Touchable.enabled);
 		stage.addListener(new InputListener() {
-			
+
 			@Override
-			public boolean mouseMoved (InputEvent event, float x, float y) {
+			public boolean mouseMoved(InputEvent event, float x, float y) {
 				Vector2 consoleWindowStageCoords = new Vector2();
 				consoleWindow.localToStageCoordinates(consoleWindowStageCoords);
 				float x1 = consoleWindowStageCoords.x;
 				float y1 = consoleWindowStageCoords.y;
 				float x2 = x1 + consoleWindow.getWidth();
 				float y2 = y1 + consoleWindow.getHeight();
-				if(x >= x1 && x <= x2 && y >= y1 && y <= y2) {
-					if(!captured) {
+				if (x >= x1 && x <= x2 && y >= y1 && y <= y2) {
+					if (!captured) {
 						captured = true;
 						updateTransparency();
 					}
-					
+
 					display.updateLabelBackground();
-				}
-				else {
-					if(captured) {
+				} else {
+					if (captured) {
 						captured = false;
 						updateTransparency();
 					}
 				}
-				
+
 				return false;
 			}
 		});
@@ -223,8 +215,7 @@ public class GUIConsole extends AbstractConsole {
 		try {
 			log.getLogEntries().clear();
 			refreshFlag = true;
-		}
-		finally {
+		} finally {
 			rwl.writeLock().unlock();
 		}
 	}
@@ -277,7 +268,8 @@ public class GUIConsole extends AbstractConsole {
 	@Override
 	public void setPositionPercent(float xPosPct, float yPosPct) {
 		if (xPosPct > 100 || yPosPct > 100) {
-			throw new IllegalArgumentException("Error: The console would be drawn outside of the screen.");
+			throw new IllegalArgumentException(
+					"Error: The console would be drawn outside of the screen.");
 		}
 		float w = Gdx.graphics.getWidth(), h = Gdx.graphics.getHeight();
 		consoleWindow.setPosition(w * xPosPct / 100.0f, h * yPosPct / 100.0f);
@@ -308,9 +300,9 @@ public class GUIConsole extends AbstractConsole {
 	}
 
 	/**
-	 * Compares the given processor to the console's stage. If given a
-	 * multiplexer, it is iterated through recursively to check all of the
-	 * multiplexer's processors for comparison.
+	 * Compares the given processor to the console's stage. If given a multiplexer,
+	 * it is iterated through recursively to check all of the multiplexer's
+	 * processors for comparison.
 	 *
 	 * @param processor
 	 * @return processor == this.stage
@@ -354,8 +346,8 @@ public class GUIConsole extends AbstractConsole {
 		if (!visibile) {
 			return;
 		}
-		if(refreshFlag) {
-			if(rwl.writeLock().tryLock()) {
+		if (refreshFlag) {
+			if (rwl.writeLock().tryLock()) {
 				try {
 					display.refresh();
 					refreshFlag = false;
@@ -466,7 +458,7 @@ public class GUIConsole extends AbstractConsole {
 		Vector3 stageCoords = stage.getCamera().unproject(new Vector3(screenX, screenY, 0));
 		float x = stageCoords.x;
 		float y = stageCoords.y;
-		
+
 		float x1 = consoleWindow.getX();
 		float y1 = consoleWindow.getY();
 		float x2 = x1 + consoleWindow.getWidth();
@@ -499,27 +491,28 @@ public class GUIConsole extends AbstractConsole {
 		consoleWindow.setTouchable(visible ? Touchable.childrenOnly : Touchable.disabled);
 		display.setHidden(!visible);
 	}
-	
+
 	public void setHandleFocus(boolean handleFocus) {
 		this.handleFocus = handleFocus;
+		updateTransparency();
 	}
-	
+
 	@Override
-	public boolean hasFocus () {
-		if(!handleFocus) {
+	public boolean hasFocus() {
+		if (!handleFocus) {
 			return visibile;
 		}
 		return focus;
 	}
 
 	@Override
-	public void setFocus (boolean focus) {
-		if(!handleFocus) return;
+	public void setFocus(boolean focus) {
+		if (!handleFocus)
+			return;
 		this.focus = focus;
-		if(this.focus) {
+		if (this.focus) {
 			display.select();
-		}
-		else {
+		} else {
 			display.deselect();
 			updateTransparency();
 		}
@@ -539,33 +532,37 @@ public class GUIConsole extends AbstractConsole {
 		this.defaultTransparency = defaultTransparency;
 		this.backgroundTransparency = backgroundTransparency;
 	}
-	
+
 	public boolean isCaptured() {
 		return this.captured;
 	}
-	
-	public void updateTransparency () {
-		if(!isVisible()) return;
-		
+
+	public void updateTransparency() {
+		if (!isVisible())
+			return;
+
 		Color color = consoleWindow.getColor();
-		if(hasFocus() || isCaptured()) {
+		if (hasFocus() || isCaptured()) {
 			color.a = defaultTransparency;
-		}
-		else {
+		} else {
 			color.a = backgroundTransparency;
 		}
 		consoleWindow.setColor(color);
 	}
 
-	public void setMouseHoverDrawble (Drawable mouseHoverDrawable) {
+	public void setMouseHoverDrawble(Drawable mouseHoverDrawable) {
 		display.setMouseHoverDrawble(mouseHoverDrawable);
 	}
 
-	public void setSelectedDrawble (Drawable selectedDrawable) {
+	public void setSelectedDrawble(Drawable selectedDrawable) {
 		display.setSelectedDrawable(selectedDrawable);
 	}
-	
+
 	public void setDebug(boolean enabled, boolean recursively) {
 		consoleWindow.setDebug(enabled, recursively);
+	}
+
+	public Window getWindow() {
+		return consoleWindow;
 	}
 }
