@@ -67,13 +67,22 @@ public class CommandCompleter {
 				++dot;
 			}
 
-			String lastPart = parts[parts.length - 1];
-			for (Command command : commands) {
-				if (command.isHidden())
-					continue;
+			if (s.length() > 0 && s.charAt(s.length() - 1) == '.') {
+				for (Command command : commands) {
+					if (command.isHidden())
+						continue;
 
-				if (command.getName().startsWith(lastPart)) {
 					possibleCommands.add(command);
+				}
+			} else {
+				String lastPart = parts[parts.length - 1];
+				for (Command command : commands) {
+					if (command.isHidden())
+						continue;
+
+					if (command.getName().startsWith(lastPart)) {
+						possibleCommands.add(command);
+					}
 				}
 			}
 		} else {
@@ -115,7 +124,9 @@ public class CommandCompleter {
 		if (!commandPrefix.isEmpty())
 			return commandPrefix + "." + iterator.next().getName();
 
-		return iterator.next().getName();
+		Command command = iterator.next();
+		String commandStr = command.getName();
+		return commandStr;
 	}
 
 }
