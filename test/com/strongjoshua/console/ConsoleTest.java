@@ -23,12 +23,14 @@ public class ConsoleTest {
 		headlessConsole = new HeadlessConsole();
 		commandExec = new CommandExecutor() {
 
+			@SuppressWarnings("unused")
 			public void testString(String str) {
 				commandFound = true;
 
 				console.log(str);
 			}
 
+			@SuppressWarnings("unused")
 			public void testBoolean(Boolean arg1, boolean arg2) {
 				commandFound = true;
 
@@ -36,6 +38,7 @@ public class ConsoleTest {
 				console.log(String.valueOf(arg2));
 			}
 
+			@SuppressWarnings("unused")
 			public void testByte(Byte arg1, byte arg2) {
 				commandFound = true;
 
@@ -43,6 +46,7 @@ public class ConsoleTest {
 				console.log(String.valueOf(arg2));
 			}
 
+			@SuppressWarnings("unused")
 			public void testShort(Short arg1, short arg2) {
 				commandFound = true;
 
@@ -50,6 +54,7 @@ public class ConsoleTest {
 				console.log(String.valueOf(arg2));
 			}
 
+			@SuppressWarnings("unused")
 			public void testInteger(Integer arg1, int arg2) {
 				commandFound = true;
 
@@ -57,6 +62,7 @@ public class ConsoleTest {
 				console.log(String.valueOf(arg2));
 			}
 
+			@SuppressWarnings("unused")
 			public void testLong(Long arg1, long arg2) {
 				commandFound = true;
 
@@ -64,6 +70,7 @@ public class ConsoleTest {
 				console.log(String.valueOf(arg2));
 			}
 
+			@SuppressWarnings("unused")
 			public void testFloat(Float arg1, float arg2) {
 				commandFound = true;
 
@@ -71,6 +78,7 @@ public class ConsoleTest {
 				console.log(String.valueOf(arg2));
 			}
 
+			@SuppressWarnings("unused")
 			public void testDouble(Double arg1, double arg2) {
 				commandFound = true;
 
@@ -78,6 +86,7 @@ public class ConsoleTest {
 				console.log(String.valueOf(arg2));
 			}
 
+			@SuppressWarnings("unused")
 			public void testObject(Object arg1) {
 				commandFound = true;
 

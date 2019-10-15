@@ -120,11 +120,13 @@ public class StageTest extends ApplicationAdapter {
 			StageTest.this.blink();
 		}
 
+		@SuppressWarnings("unused")
 		public void setExecuteHiddenCommands(boolean enabled) {
 			console.setExecuteHiddenCommands(enabled);
 			console.log("ExecuteHiddenCommands was set to " + enabled);
 		}
 
+		@SuppressWarnings("unused")
 		public void setDisplayHiddenCommands(boolean enabled) {
 			console.setDisplayHiddenCommands(enabled);
 			console.log("DisplayHiddenCommands was set to " + enabled);
