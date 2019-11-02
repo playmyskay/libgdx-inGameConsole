@@ -20,7 +20,6 @@ public class DisplayListener extends InputListener {
 
 	@Override
 	public boolean keyTyped(InputEvent event, char character) {
-		System.out.println("key");
 		if (console.isDisabled())
 			return false;
 
