@@ -73,7 +73,7 @@ public class GUIConsole extends AbstractConsole {
 	 * @see Console#dispose()
 	 */
 	public GUIConsole() {
-		this(new Skin(Gdx.files.classpath("default_skin/uiskin.json")));
+		this(new Skin(Gdx.files.internal("assets/ui/uiskin.json")));
 	}
 
 	/**
@@ -100,7 +100,7 @@ public class GUIConsole extends AbstractConsole {
 	 * @see Console#dispose()
 	 */
 	public GUIConsole(boolean useMultiplexer) {
-		this(new Skin(Gdx.files.classpath("default_skin/uiskin.json")), useMultiplexer);
+		this(new Skin(Gdx.files.internal("assets/ui/uiskin.json")), useMultiplexer);
 	}
 
 	/**
@@ -300,9 +300,9 @@ public class GUIConsole extends AbstractConsole {
 	}
 
 	/**
-	 * Compares the given processor to the console's stage. If given a multiplexer,
-	 * it is iterated through recursively to check all of the multiplexer's
-	 * processors for comparison.
+	 * Compares the given processor to the console's stage. If given a
+	 * multiplexer, it is iterated through recursively to check all of the
+	 * multiplexer's processors for comparison.
 	 *
 	 * @param processor
 	 * @return processor == this.stage
