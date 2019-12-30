@@ -33,6 +33,7 @@ class ConsoleDisplay extends Table {
 	private Drawable mouseHoverDrawable;
 	private Drawable selectedDrawable;
 	private Array<LogEntry> selections = new Array<LogEntry>();
+	private StringBuilder sb = new StringBuilder();
 
 	protected ConsoleDisplay(Console console, Log log, Stage stage, Skin skin) {
 		this.setFillParent(false);
@@ -64,19 +65,19 @@ class ConsoleDisplay extends Table {
 		this.add(input).expandX().fillX().pad(4);
 		this.addListener(new KeyListener(console, input));
 	}
-	
+
 	public void setMouseHoverDrawble(Drawable mouseHoverDrawable) {
 		this.mouseHoverDrawable = mouseHoverDrawable;
 	}
-	
-	public void setSelectedDrawable (Drawable selectedDrawable) {
+
+	public void setSelectedDrawable(Drawable selectedDrawable) {
 		this.selectedDrawable = selectedDrawable;
 	}
-	
-	public Drawable getSelectDrawable () {
+
+	public Drawable getSelectDrawable() {
 		return this.selectedDrawable;
 	}
-	
+
 	protected void refresh() {
 		Array<LogEntry> entries = log.getLogEntries();
 		logEntries.clear();
@@ -95,9 +96,10 @@ class ConsoleDisplay extends Table {
 				l.setWrap(true);
 				labels.add(l);
 			}
-			l.setText(le.toConsoleString());
+			sb.setLength(0);
+			l.setText(le.addConsoleString(sb));
 			l.setUserObject(le);
-			
+
 			LabelStyle lb = new LabelStyle();
 			lb.font = skin.getFont(fontName);
 			lb.fontColor = le.getColor();
@@ -133,27 +135,28 @@ class ConsoleDisplay extends Table {
 		stage.setKeyboardFocus(null);
 		stage.setScrollFocus(null);
 	}
-	
+
 	public LogEntry getHoveredLogEntry() {
 		Vector3 stageCoords = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0f);
 		stage.getCamera().unproject(stageCoords);
-		
+
 		float x = stageCoords.x;
 		float y = stageCoords.y;
-		
-		for(Label l : labels) {
+
+		for (Label l : labels) {
 			Vector2 localToStage = l.localToStageCoordinates(new Vector2());
-			
+
 			float x1 = localToStage.x;
 			float x2 = x1 + l.getWidth();
 			float y1 = localToStage.y;
 			float y2 = y1 + l.getHeight();
-			
+
 			LabelStyle ls = l.getStyle();
-			if(ls == null) ls = new LabelStyle();
-			if(x >= x1 && x <= x2 && y >= y1 && y <= y2) {
-				if(l.getUserObject() != null && l.getUserObject() instanceof LogEntry) {
-					return (LogEntry)l.getUserObject();
+			if (ls == null)
+				ls = new LabelStyle();
+			if (x >= x1 && x <= x2 && y >= y1 && y <= y2) {
+				if (l.getUserObject() != null && l.getUserObject() instanceof LogEntry) {
+					return (LogEntry) l.getUserObject();
 				}
 				return null;
 			}
@@ -161,40 +164,40 @@ class ConsoleDisplay extends Table {
 		return null;
 	}
 
-	public void updateLabelBackground () {
-		if(mouseHoverDrawable == null && selectedDrawable == null) return;
+	public void updateLabelBackground() {
+		if (mouseHoverDrawable == null && selectedDrawable == null)
+			return;
 		LogEntry logEntry = getHoveredLogEntry();
-		for(Label l : labels) {
+		for (Label l : labels) {
 			LabelStyle ls = l.getStyle();
-			if(l.getUserObject() == null || !(l.getUserObject() instanceof LogEntry)) continue;
+			if (l.getUserObject() == null || !(l.getUserObject() instanceof LogEntry))
+				continue;
 			LogEntry le = (LogEntry) l.getUserObject();
-			if(selections.contains(le, true)) {
-				if(ls.background != selectedDrawable) {
+			if (selections.contains(le, true)) {
+				if (ls.background != selectedDrawable) {
 					ls.background = selectedDrawable;
 				}
-			}
-			else if(logEntry == le) {
-				if(ls.background != mouseHoverDrawable) {
+			} else if (logEntry == le) {
+				if (ls.background != mouseHoverDrawable) {
 					ls.background = mouseHoverDrawable;
 				}
-			}
-			else {
-				if(ls.background != null) {
+			} else {
+				if (ls.background != null) {
 					ls.background = null;
 				}
 			}
 		}
 	}
 
-	public Console getConsole () {
+	public Console getConsole() {
 		return console;
 	}
 
-	public Array<LogEntry> getSelections () {
+	public Array<LogEntry> getSelections() {
 		return selections;
 	}
 
-	public Array<LogEntry> getLogEntries () {
+	public Array<LogEntry> getLogEntries() {
 		return log.getLogEntries();
 	}
 }

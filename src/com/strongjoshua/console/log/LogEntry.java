@@ -21,27 +21,26 @@ public class LogEntry {
 	private LogLevel level;
 	private long timeStamp;
 
-	protected LogEntry (String msg, LogLevel level) {
+	protected LogEntry(String msg, LogLevel level) {
 		this.text = msg;
 		this.level = level;
 		timeStamp = TimeUtils.millis();
 	}
 
-	public Color getColor () {
+	public Color getColor() {
 		return level.getColor();
 	}
 
-	public String toConsoleString () {
-		String r = "";
+	public StringBuilder addConsoleString(StringBuilder sb) {
 		if (level.equals(LogLevel.COMMAND)) {
-			r += level.getIdentifier();
+			sb.append(level.getIdentifier());
 		}
-		r += text;
-		return r;
+		sb.append(text);
+		return sb;
 	}
 
 	@Override
-	public String toString () {
+	public String toString() {
 		return timeStamp + ": " + level.getIdentifier() + text;
 	}
 }

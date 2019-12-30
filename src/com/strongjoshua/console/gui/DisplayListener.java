@@ -12,6 +12,7 @@ public class DisplayListener extends InputListener {
 	private final Console console;
 	private final ConsoleDisplay display;
 	private LogEntry lastSelected;
+	private StringBuilder sb = new StringBuilder();
 
 	public DisplayListener(ConsoleDisplay display) {
 		this.console = display.getConsole();
@@ -51,12 +52,12 @@ public class DisplayListener extends InputListener {
 			return true;
 		} else if (Gdx.input.isKeyPressed(Keys.CONTROL_LEFT) && Gdx.input.isKeyPressed(Keys.C)) {
 			// [L-CTRL] + [A] -> to clipboard
-			String content = "";
+			sb.setLength(0);
 			Array<LogEntry> selections = display.getSelections();
 			for (LogEntry le : selections) {
-				content += le.toConsoleString() + "\n";
+				le.addConsoleString(sb).append("\n");
 			}
-			Gdx.app.getClipboard().setContents(content);
+			Gdx.app.getClipboard().setContents(sb.toString());
 		}
 		return false;
 	}
