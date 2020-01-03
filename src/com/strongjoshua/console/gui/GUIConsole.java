@@ -28,12 +28,12 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Array;
 import com.strongjoshua.console.AbstractConsole;
 import com.strongjoshua.console.Console;
+import com.strongjoshua.console.gui.ConsoleDisplay.ConsoleSettings;
 import com.strongjoshua.console.log.LogLevel;
 
 /**
@@ -61,62 +61,8 @@ public class GUIConsole extends AbstractConsole {
 	private final ReadWriteLock rwl = new ReentrantReadWriteLock();
 	private boolean refreshFlag = true;
 
-	private float defaultTransparency = 1f;
+	private float foregroundTransparency = 1f;
 	private float backgroundTransparency = 1f;
-
-	/**
-	 * Creates the console using the default skin.<br>
-	 * <b>***IMPORTANT***</b> Call {@link Console#dispose()} to make your
-	 * {@link InputProcessor} the default processor again (this console uses a
-	 * multiplexer to circumvent it).
-	 *
-	 * @see Console#dispose()
-	 */
-	public GUIConsole() {
-		this(new Skin(Gdx.files.internal("assets/ui/uiskin.json")));
-	}
-
-	/**
-	 * Creates the console.<br>
-	 * <b>***IMPORTANT***</b> Call {@link Console#dispose()} to make your
-	 * {@link InputProcessor} the default processor again (this console uses a
-	 * multiplexer to circumvent it).
-	 *
-	 * @param skin Uses skins for Label, TextField, and Table. Skin <b>must</b>
-	 *             contain a font called 'default-font'.
-	 * @see Console#dispose()
-	 */
-	public GUIConsole(Skin skin) {
-		this(skin, true);
-	}
-
-	/**
-	 * Creates the console.<br>
-	 * <b>***IMPORTANT***</b> Call {@link Console#dispose()} to make your
-	 * {@link InputProcessor} the default processor again (this console uses a
-	 * multiplexer to circumvent it).
-	 *
-	 * @param useMultiplexer If internal multiplexer should be used
-	 * @see Console#dispose()
-	 */
-	public GUIConsole(boolean useMultiplexer) {
-		this(new Skin(Gdx.files.internal("assets/ui/uiskin.json")), useMultiplexer);
-	}
-
-	/**
-	 * Creates the console.<br>
-	 * <b>***IMPORTANT***</b> Call {@link Console#dispose()} to make your
-	 * {@link InputProcessor} the default processor again (this console uses a
-	 * multiplexer to circumvent it).
-	 *
-	 * @param skin           Uses skins for Label, TextField, and Table. Skin
-	 *                       <b>must</b> contain a font called 'default-font'.
-	 * @param useMultiplexer If internal multiplexer should be used
-	 * @see Console#dispose()
-	 */
-	public GUIConsole(Skin skin, boolean useMultiplexer) {
-		this(skin, useMultiplexer, Keys.APOSTROPHE);
-	}
 
 	/**
 	 * Creates the console.<br>
@@ -130,14 +76,14 @@ public class GUIConsole extends AbstractConsole {
 	 * @param keyID          Sets the key used to open/close the console
 	 * @see Console#dispose()
 	 */
-	public GUIConsole(Skin skin, boolean useMultiplexer, int keyID) {
-		this.keyID = keyID;
+	public GUIConsole(ConsoleSettings settings) {
+		this.keyID = settings.getKeyID();
 		stage = new Stage();
-		display = new ConsoleDisplay(this, log, stage, skin);
+		display = new ConsoleDisplay(stage, log, this, settings);
 		logToSystem = false;
 
-		usesMultiplexer = useMultiplexer;
-		if (useMultiplexer) {
+		usesMultiplexer = settings.isUseMultiplexer();
+		if (usesMultiplexer) {
 			resetInputProcessing();
 		}
 
@@ -145,7 +91,7 @@ public class GUIConsole extends AbstractConsole {
 		// display.padTop(22);
 		display.setFillParent(true);
 
-		consoleWindow = new Dialog("Console", skin);
+		consoleWindow = new Dialog("Console", settings.getSkin());
 		consoleWindow.setModal(false);
 		consoleWindow.setMovable(true);
 		consoleWindow.setResizable(true);
@@ -528,8 +474,8 @@ public class GUIConsole extends AbstractConsole {
 		display.deselect();
 	}
 
-	public void setTransparency(float defaultTransparency, float backgroundTransparency) {
-		this.defaultTransparency = defaultTransparency;
+	public void setTransparency(float foreTransparency, float backgroundTransparency) {
+		this.foregroundTransparency = foreTransparency;
 		this.backgroundTransparency = backgroundTransparency;
 	}
 
@@ -543,7 +489,7 @@ public class GUIConsole extends AbstractConsole {
 
 		Color color = consoleWindow.getColor();
 		if (hasFocus() || isCaptured()) {
-			color.a = defaultTransparency;
+			color.a = foregroundTransparency;
 		} else {
 			color.a = backgroundTransparency;
 		}
@@ -551,7 +497,7 @@ public class GUIConsole extends AbstractConsole {
 	}
 
 	public void setMouseHoverDrawble(Drawable mouseHoverDrawable) {
-		display.setMouseHoverDrawble(mouseHoverDrawable);
+		display.setMouseHoverDrawable(mouseHoverDrawable);
 	}
 
 	public void setSelectedDrawble(Drawable selectedDrawable) {

@@ -43,6 +43,7 @@ import com.strongjoshua.console.CommandManager;
 import com.strongjoshua.console.DefaultCommandManager;
 import com.strongjoshua.console.annotation.ConsoleDoc;
 import com.strongjoshua.console.annotation.HiddenCommand;
+import com.strongjoshua.console.gui.ConsoleDisplay.ConsoleSettings;
 import com.strongjoshua.console.gui.GUIConsole;
 import com.strongjoshua.console.log.LogConverter;
 import com.strongjoshua.console.log.LogLevel;
@@ -179,9 +180,13 @@ public class Box2DTest extends ApplicationAdapter {
 
 		debugRenderer = new Box2DDebugRenderer();
 
-		console = new GUIConsole(new Skin(
-				Gdx.files.classpath("com/strongjoshua/console/tests/test_skin/uiskin.json")),
-				false);
+		Skin skin = new Skin(
+				Gdx.files.classpath("com/strongjoshua/console/tests/test_skin/uiskin.json"));
+
+		ConsoleSettings settings = new ConsoleSettings();
+		settings.setSkin(skin);
+
+		console = new GUIConsole(settings);
 		console.setTransparency(0.8f, 0.4f);
 		console.setHandleFocus(true);
 		console.addLogConverter(new LogConverter() {
@@ -270,8 +275,8 @@ public class Box2DTest extends ApplicationAdapter {
 	 * Creates an explosion that applies forces to the bodies relative to their
 	 * position and the given x and y values.
 	 *
-	 * @param maxForce The maximum force to be applied to the bodies (diminishes as
-	 *                 distance from touch increases).
+	 * @param maxForce The maximum force to be applied to the bodies (diminishes
+	 *                 as distance from touch increases).
 	 */
 	private void createExplosion(float x, float y, float maxForce) {
 		float force;

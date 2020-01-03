@@ -23,6 +23,7 @@ import com.strongjoshua.console.CommandExecutor;
 import com.strongjoshua.console.CommandManager;
 import com.strongjoshua.console.DefaultCommandManager;
 import com.strongjoshua.console.annotation.ConsoleDoc;
+import com.strongjoshua.console.gui.ConsoleDisplay.ConsoleSettings;
 import com.strongjoshua.console.gui.GUIConsole;
 
 public class StageTest extends ApplicationAdapter {
@@ -38,7 +39,13 @@ public class StageTest extends ApplicationAdapter {
 		Gdx.input.setInputProcessor(stage);
 
 		Skin skin = new Skin(Gdx.files.classpath("tests/test_skin/uiskin.json"));
-		console = new GUIConsole(skin, true, Keys.NUMPAD_0);
+
+		ConsoleSettings settings = new ConsoleSettings();
+		settings.setUseMultiplexer(true);
+		settings.setSkin(skin);
+		settings.setKeyID(Keys.NUMPAD_0);
+
+		console = new GUIConsole(settings);
 		console.setCommandManager(new DefaultCommandManager());
 
 		AnnotationCommandCreator creator = new AnnotationCommandCreator(new MyCommandExecutor(),

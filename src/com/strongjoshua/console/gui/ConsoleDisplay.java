@@ -1,7 +1,11 @@
 package com.strongjoshua.console.gui;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -13,13 +17,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.strongjoshua.console.Console;
 import com.strongjoshua.console.log.Log;
 import com.strongjoshua.console.log.LogEntry;
 import com.strongjoshua.console.log.LogLevel;
 
-class ConsoleDisplay extends Table {
+public class ConsoleDisplay extends Table {
 	private Console console;
 	private Log log;
 	private Stage stage;
@@ -35,12 +40,89 @@ class ConsoleDisplay extends Table {
 	private Array<LogEntry> selections = new Array<LogEntry>();
 	private StringBuilder sb = new StringBuilder();
 
-	protected ConsoleDisplay(Console console, Log log, Stage stage, Skin skin) {
+	public static class ConsoleSettings {
+		private Skin skin;
+		private Drawable mouseHoverDrawable;
+		private Drawable selectionDrawable;
+
+		// If internal multiplexer should be used
+		private boolean useMultiplexer = true;
+
+		// Sets the key used to open/close the console
+		private int keyID;
+
+		public Skin getSkin() {
+			if (skin == null) {
+				skin = new Skin(Gdx.files.internal("assets/ui/uiskin.json"));
+			}
+			return skin;
+		}
+
+		public void setSkin(Skin skin) {
+			this.skin = skin;
+		}
+
+		public boolean isUseMultiplexer() {
+			return useMultiplexer;
+		}
+
+		public void setUseMultiplexer(boolean useMultiplexer) {
+			this.useMultiplexer = useMultiplexer;
+		}
+
+		public int getKeyID() {
+			return keyID;
+		}
+
+		public void setKeyID(int keyID) {
+			this.keyID = keyID;
+		}
+
+		public Drawable getMouseHoverDrawable() {
+			if (mouseHoverDrawable == null) {
+				mouseHoverDrawable = createColorDrawable(new Color(1, 0, 0, 0.25f));
+			}
+			return mouseHoverDrawable;
+		}
+
+		public void setMouseHoverDrawable(Drawable mouseHoverDrawable) {
+			this.mouseHoverDrawable = mouseHoverDrawable;
+		}
+
+		public Drawable getSelectionDrawable() {
+			if (selectionDrawable == null) {
+				selectionDrawable = createColorDrawable(new Color(0, 0, 1, 0.25f));
+			}
+			return selectionDrawable;
+		}
+
+		public void setSelectionDrawable(Drawable selectionDrawable) {
+			this.selectionDrawable = selectionDrawable;
+		}
+
+		private static Drawable createColorDrawable(Color color) {
+			SpriteDrawable drawable = new SpriteDrawable(createColoredSprite(color));
+			return drawable;
+		}
+
+		private static Sprite createColoredSprite(Color color) {
+			Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+			pixmap.setColor(color);
+			pixmap.fill();
+
+			Texture texture = new Texture(pixmap);
+			return new Sprite(texture);
+		}
+	}
+
+	protected ConsoleDisplay(Stage stage, Log log, Console console, ConsoleSettings settings) {
 		this.setFillParent(false);
 		this.console = console;
 		this.log = log;
 		this.stage = stage;
-		this.skin = skin;
+		this.skin = settings.getSkin();
+		this.mouseHoverDrawable = settings.getMouseHoverDrawable();
+		this.selectedDrawable = settings.getSelectionDrawable();
 
 		if (skin.has("console-font", BitmapFont.class))
 			fontName = "console-font";
@@ -66,7 +148,7 @@ class ConsoleDisplay extends Table {
 		this.addListener(new KeyListener(console, input));
 	}
 
-	public void setMouseHoverDrawble(Drawable mouseHoverDrawable) {
+	public void setMouseHoverDrawable(Drawable mouseHoverDrawable) {
 		this.mouseHoverDrawable = mouseHoverDrawable;
 	}
 
